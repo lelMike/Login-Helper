@@ -38,9 +38,9 @@ def welcome_menu():
     elif user_input == 2:
         return add_new_login()
     elif user_input == 3:
-        change_existing_login()
+        return change_existing_login()
     elif user_input == 4:
-        delete_existing_login()
+        return delete_existing_login()
     elif user_input == 5:
         print("Have a nice day, thank you for using the Login Helper!")
         return
@@ -49,8 +49,8 @@ def welcome_menu():
 def show_names():
     for _ in range(20):
         print(" ")
-    print("To copy any app name, enter the app name number")
-    print("All app names:")
+    print("To copy any app name, enter the login number")
+    print("All login names:")
     for ind, key in enumerate(logins.keys()):
         print(f"{ind} - {key}")
     print("\nTo return to the menu, enter any character")
@@ -78,15 +78,15 @@ def show_names():
 
 
 def copy_login_details():
-    print("Enter the correct name of the app credentials you want to access")
-    user_input = input()
-    if not user_input.lower() in logins.keys():
-        return copy_login_details()
-    current_login = logins[user_input]
+    print("Enter the correct number of the login credentials you want to access")
+    for ind, key in enumerate(logins.keys()):
+        print(f"{ind} - {key}")
+    user_input = user_input_errorcheck(input(), len(logins.keys()))
+    current_login = logins[list(logins.keys())[user_input]]
     print("Username copied to clipboard")
     pyperclip.copy(current_login[0])
     keyboard.wait("ctrl+v")
-    print("password copied to clipboard")
+    print("Password copied to clipboard")
     pyperclip.copy(current_login[1])
     keyboard.wait("ctrl+v")
     pyperclip.copy(" ")
@@ -119,12 +119,11 @@ def add_new_login():
 
 
 def change_existing_login():
-    print("What login do you want to change?\n")
-    change_login_name = input().lower()
-    while change_login_name not in logins.keys():
-        print("Login not found, try again")
-        change_login_name = input().lower()
-    curr_login_info = logins[change_login_name]
+    print("Enter the correct number of the login credentials you want to change")
+    for ind, key in enumerate(logins.keys()):
+        print(f"{ind} - {key}")
+    user_input = user_input_errorcheck(input(), len(logins.keys()))
+    change_login_name = list(logins.keys())[user_input].lower()
     print("Found it! What change do you want to make?")
     print("0 - Username\n1 - Password\n2 - Both")
     user_input = user_input_errorcheck(input(), 3)
@@ -156,11 +155,11 @@ def change_existing_login():
 
 
 def delete_existing_login():
-    print("What login do you want to delete?")
-    delete_login_name = input().lower()
-    while delete_login_name not in logins.keys():
-        print("Login not found, try again")
-        delete_login_name = input().lower()
+    print("Enter the correct number of the login credentials you want to delete")
+    for ind, key in enumerate(logins.keys()):
+        print(f"{ind} - {key}")
+    user_input = user_input_errorcheck(input(), len(logins.keys()))
+    delete_login_name = list(logins.keys())[user_input].lower()
     logins.pop(delete_login_name)
     with open("logins.json", "w") as file:
         json.dump(logins, file)
