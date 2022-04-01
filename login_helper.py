@@ -1,6 +1,8 @@
 import json
 import pyperclip
 import keyboard
+import os.path
+from os import path
 
 options = ["0 - Show app names",
            "1 - Copy login details",
@@ -43,7 +45,7 @@ def welcome_menu():
         return delete_existing_login()
     elif user_input == 5:
         print("Have a nice day, thank you for using the Login Helper!")
-        return
+        return None
 
 
 def show_names():
@@ -74,7 +76,7 @@ def show_names():
             pass
     for _ in range(20):
         print(" ")
-    welcome_menu()
+    return welcome_menu()
 
 
 def copy_login_details():
@@ -92,7 +94,7 @@ def copy_login_details():
     pyperclip.copy(" ")
     for _ in range(20):
         print(" ")
-    welcome_menu()
+    return welcome_menu()
 
 
 def add_new_login():
@@ -115,7 +117,7 @@ def add_new_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
-    welcome_menu()
+    return welcome_menu()
 
 
 def change_existing_login():
@@ -151,7 +153,7 @@ def change_existing_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
-    welcome_menu()
+    return welcome_menu()
 
 
 def delete_existing_login():
@@ -167,7 +169,43 @@ def delete_existing_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
-    welcome_menu()
+    return welcome_menu()
 
 
-welcome_menu()
+def check_if_files():
+    logins_file = path.exists("logins.json")
+    password_file = path.exists("ps.json")
+    if logins_file is False:
+        with open("logins.json", 'w') as f:
+            temp_sample_dict = {"sample_login": ["sample_login", "sample_password"]}
+            json.dump(temp_sample_dict, f)
+    if password_file is False:
+        print("First time setup, please enter a password you'd like to use "
+              "in this program\n!!!!! NOTE !!!!!\nLosing the password"
+              " will cause all your login data to be unaccessible.")
+        pass1 = input()
+        with open("ps.json", 'w') as fhandle:
+            temp_ps = {"ps": pass1}
+            json.dump(temp_ps, fhandle)
+    print("Enter password:\n**************")
+    entered_pass = input()
+    with open("ps.json") as password:
+        temp_pass = json.load(password)
+        true_pass = temp_pass[list(temp_pass.keys())[0]]
+    tries = 1
+    while entered_pass != true_pass:
+        if tries <= 3:
+            print(f"{tries} tries left, try again")
+            entered_pass = input()
+            tries += 1
+        else:
+            print("!!! Access denied !!!")
+            return None
+        if entered_pass == true_pass:
+            print("Access granted\n")
+            return welcome_menu()
+    print("Access granted\n")
+    return welcome_menu()
+
+
+check_if_files()
