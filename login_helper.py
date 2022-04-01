@@ -1,7 +1,6 @@
 import json
 import pyperclip
 import keyboard
-import os.path
 from os import path
 
 options = ["0 - Show app names",
@@ -21,7 +20,7 @@ def user_input_errorcheck(user_input, check_range):
     except:
         print("Wrong input, try again")
         return user_input_errorcheck(input(), check_range)
-    if not user_input in range(check_range):
+    if user_input not in range(check_range):
         print("Wrong input, try again")
         return user_input_errorcheck(input(), check_range)
 
@@ -62,7 +61,7 @@ def show_names():
         user_input = int(user_input)
     except:
         pass
-    while type(user_input) == type(1):
+    while isinstance(user_input, int):
         if int(user_input) in range(len(logins.keys())):
             pyperclip.copy(list(logins.keys())[user_input])
         else:
