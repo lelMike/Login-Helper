@@ -10,9 +10,6 @@ options = ["0 - Show app names",
            "4 - Delete an existing login",
            "5 - Close"]
 
-with open("logins.json") as f:
-    logins = json.load(f)
-
 
 def user_input_errorcheck(user_input, check_range):
     try:
@@ -202,9 +199,12 @@ def check_if_files():
             return None
         if entered_pass == true_pass:
             print("Access granted\n")
-            return welcome_menu()
+            return 1
     print("Access granted\n")
-    return welcome_menu()
+    return 1
 
 
 check_if_files()
+with open("logins.json") as f:
+    logins = json.load(f)
+welcome_menu()
