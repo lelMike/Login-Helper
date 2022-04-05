@@ -1,6 +1,9 @@
 import json
 import pyperclip
 import keyboard
+import uuid
+import hashlib
+import cryptography
 from os import path
 
 options = ["0 - Show app names",
@@ -9,6 +12,18 @@ options = ["0 - Show app names",
            "3 - Change an existing login",
            "4 - Delete an existing login",
            "5 - Close"]
+
+
+def ps_hash(ps):
+    salt = uuid.uuid4().hex
+
+    return hashlib.sha256(salt.encode() + ps.encode()).hexdigest() + ':' + salt
+
+
+def check_ps(hashed_ps, input_ps):
+    ps, salt = hashed_ps.split(':')
+
+    return ps == hashlib.sha256(salt.encode() + input_ps.encode()).hexdigest()
 
 
 def user_input_errorcheck(user_input, check_range):
@@ -30,17 +45,28 @@ def welcome_menu():
         print(i)
     user_input = user_input_errorcheck(input(), len(options))
     if user_input == 0:
+
         return show_names()
+
     elif user_input == 1:
+
         return copy_login_details()
+
     elif user_input == 2:
+
         return add_new_login()
+
     elif user_input == 3:
+
         return change_existing_login()
+
     elif user_input == 4:
+
         return delete_existing_login()
+
     elif user_input == 5:
         print("Have a nice day, thank you for using the Login Helper!")
+
         return None
 
 
@@ -58,6 +84,7 @@ def show_names():
         user_input = int(user_input)
     except:
         pass
+
     while isinstance(user_input, int):
         if int(user_input) in range(len(logins.keys())):
             pyperclip.copy(list(logins.keys())[user_input])
@@ -72,6 +99,7 @@ def show_names():
             pass
     for _ in range(20):
         print(" ")
+
     return welcome_menu()
 
 
@@ -90,6 +118,7 @@ def copy_login_details():
     pyperclip.copy(" ")
     for _ in range(20):
         print(" ")
+
     return welcome_menu()
 
 
@@ -113,6 +142,7 @@ def add_new_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
+
     return welcome_menu()
 
 
@@ -149,6 +179,7 @@ def change_existing_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
+
     return welcome_menu()
 
 
@@ -165,6 +196,7 @@ def delete_existing_login():
     keyboard.wait("r")
     for _ in range(20):
         print(" ")
+
     return welcome_menu()
 
 
@@ -179,32 +211,42 @@ def check_if_files():
         print("First time setup, please enter a password you'd like to use "
               "in this program\n!!!!! NOTE !!!!!\nLosing the password"
               " will cause all your login data to be unaccessible.")
-        pass1 = input()
+        psw = input()
+        hashed_pass1 = ps_hash(psw)
         with open("ps.json", 'w') as fhandle:
-            temp_ps = {"ps": pass1}
+            temp_ps = {"ps": hashed_pass1}
             json.dump(temp_ps, fhandle)
+
     print("Enter password:\n**************")
     entered_pass = input()
     with open("ps.json") as password:
         temp_pass = json.load(password)
         true_pass = temp_pass[list(temp_pass.keys())[0]]
     tries = 1
-    while entered_pass != true_pass:
+    while not check_ps(true_pass, entered_pass):
         if tries <= 3:
             print(f"{tries} tries left, try again")
             entered_pass = input()
             tries += 1
         else:
             print("!!! Access denied !!!")
-            return None
+
+            return False
+
         if entered_pass == true_pass:
             print("Access granted\n")
-            return 1
+
+            return True
+
     print("Access granted\n")
-    return 1
+
+    return True
 
 
-check_if_files()
+entry = check_if_files()
+
 with open("logins.json") as f:
     logins = json.load(f)
-welcome_menu()
+
+if entry:
+    welcome_menu()
